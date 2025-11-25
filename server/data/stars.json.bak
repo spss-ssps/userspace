@@ -1,0 +1,125 @@
+[
+  {
+    "sunSign": "Scorpio",
+    "moonSign": "Cancer",
+    "risingSign": "Sagittarius",
+    "position": {
+      "x": -37.891606775539024,
+      "y": -12.784886335979122,
+      "z": -26.864600344414853
+    },
+    "timestamp": 1763676843900,
+    "id": "star:1763676843900_0.2691661389366615"
+  },
+  {
+    "sunSign": "Taurus",
+    "moonSign": "Taurus",
+    "risingSign": "Cancer",
+    "position": {
+      "x": -7.858361449316265,
+      "y": 20.882881845476007,
+      "z": 13.284264152610907
+    },
+    "timestamp": 1763677455597,
+    "id": "star:1763677455597_0.335673957014875"
+  },
+  {
+    "sunSign": "Leo",
+    "moonSign": "Aries",
+    "risingSign": "Cancer",
+    "position": {
+      "x": -11.657222445468705,
+      "y": -2.769001708962522,
+      "z": 28.296270039517264
+    },
+    "timestamp": 1763681557733,
+    "id": "star:1763681557733_0.44344113588683565"
+  },
+  {
+    "sunSign": "Aries",
+    "moonSign": "Gemini",
+    "risingSign": "Aries",
+    "position": {
+      "x": -22.549603704153682,
+      "y": -12.4955592029597,
+      "z": 16.096994224129226
+    },
+    "timestamp": 1763656785405,
+    "id": "star:1763656785405_0.09557624927720887"
+  },
+  {
+    "sunSign": "Cancer",
+    "moonSign": "Leo",
+    "risingSign": "Leo",
+    "cosmicEnergy": "",
+    "position": {
+      "x": 31.795468002306002,
+      "y": 22.93283672055186,
+      "z": -18.213992960044116
+    },
+    "timestamp": 1763651772526,
+    "id": "star:1763651772526_0.41886555027860395"
+  },
+  {
+    "sunSign": "Taurus",
+    "moonSign": "Scorpio",
+    "risingSign": "Aries",
+    "cosmicEnergy": "",
+    "position": {
+      "x": -10.290053138535011,
+      "y": -14.12974635985977,
+      "z": -16.607014871985697
+    },
+    "timestamp": 1763651635822,
+    "id": "star:1763651635822_0.4566637784965276"
+  },
+  {
+    "sunSign": "Taurus",
+    "moonSign": "Cancer",
+    "risingSign": "Sagittarius",
+    "position": {
+      "x": -6.156506636986645,
+      "y": -38.20584366476467,
+      "z": 37.9329067683676
+    },
+    "timestamp": 1763673760277,
+    "id": "star:1763673760277_0.7516000553583013"
+  },
+  {
+    "sunSign": "Virgo",
+    "moonSign": "Leo",
+    "risingSign": "Libra",
+    "position": {
+      "x": 28.03602965108861,
+      "y": -34.52980944664378,
+      "z": 19.102902006024742
+    },
+    "timestamp": 1763658744421,
+    "id": "star:1763658744421_0.41339347020453243"
+  },
+  {
+    "sunSign": "Taurus",
+    "moonSign": "Cancer",
+    "risingSign": "Gemini",
+    "cosmicEnergy": "",
+    "position": {
+      "x": 11.66388418081433,
+      "y": -38.767453038943515,
+      "z": -38.782542747252364
+    },
+    "timestamp": 1763651975648,
+    "id": "star:1763651975648_0.8500625908079026"
+  },
+  {
+    "sunSign": "Libra",
+    "moonSign": "Taurus",
+    "risingSign": "Cancer",
+    "position": {
+      "x": 10.971421983484335,
+      "y": 32.13358015203074,
+      "z": 27.638021622723343
+    },
+    "timestamp": 1763677412332,
+    "id": "star:1763677412332_0.39554802881406803"
+  }
+]

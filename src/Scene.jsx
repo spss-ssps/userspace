@@ -1,13 +1,12 @@
 import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber'; // Runs every frame for animation
-import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 
-// Zodiac element colors
+// Zodiac element colors (hex format)
 const ELEMENT_COLORS = {
-    fire: 0xff6b35,    // Orange-red
-    earth: 0x6b8e23,   // Olive green
-    air: 0xf4e04d,     // Yellow
-    water: 0x4a90e2    // Blue
+    fire: '#ff6b35',    // Orange-red
+    earth: '#6b8e23',   // Olive green
+    air: '#f4e04d',     // Yellow
+    water: '#4a90e2'    // Blue
 };
 
 // Map signs to elements
@@ -23,9 +22,9 @@ function Star({ starData, onClick, index, isUserStar, highlight }) {
     const meshRef = useRef();
 
     // Get colors for each zodiac sign
-    const sunColor = new THREE.Color(ELEMENT_COLORS[SIGN_TO_ELEMENT[starData.sunSign]]);
-    const moonColor = new THREE.Color(ELEMENT_COLORS[SIGN_TO_ELEMENT[starData.moonSign]]);
-    const risingColor = new THREE.Color(ELEMENT_COLORS[SIGN_TO_ELEMENT[starData.risingSign]]);
+    const sunColor = ELEMENT_COLORS[SIGN_TO_ELEMENT[starData.sunSign]];
+    const moonColor = ELEMENT_COLORS[SIGN_TO_ELEMENT[starData.moonSign]];
+    const risingColor = ELEMENT_COLORS[SIGN_TO_ELEMENT[starData.risingSign]];
 
     // Animate: gentle pulsing effect (enhanced if highlighted)
     useFrame((state) => {

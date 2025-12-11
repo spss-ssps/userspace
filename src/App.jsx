@@ -3,78 +3,55 @@
 // Click stars to view details, orbit camera to explore
 
 import React, { useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber'; // 3D scene wrapper
-import { OrbitControls } from '@react-three/drei'; // Camera controls
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import Scene from './Scene';
+import StarForm from './components/StarForm';
+import StarDetails from './components/StarDetails';
+import { getAllStars, createStar, updateStar } from './utils/api';
 import './App.css';
 
-// All 12 zodiac signs for dropdown menus
-const ZODIAC_SIGNS = [
-  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
-];
-
 export default function CosmicUniverse() {
-  // UI state
+  // === STATE ===
+  // UI state: what's showing on screen
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedStar, setSelectedStar] = useState(null);
+  const [highlightUserStar, setHighlightUserStar] = useState(false);
 
-  // Form inputs
+  // Form values: what the user is typing
   const [sunSign, setSunSign] = useState('');
   const [moonSign, setMoonSign] = useState('');
   const [risingSign, setRisingSign] = useState('');
 
-  // Star data
+  // Star data: all the stars and user's star
   const [stars, setStars] = useState([]);
-  const [starCount, setStarCount] = useState(0);
-  const [userStarId, setUserStarId] = useState(null); // Track user's star ID
-  const [highlightUserStar, setHighlightUserStar] = useState(false); // Highlight on hover
+  const [userStarId, setUserStarId] = useState(null);
 
-  const SERVER_URL = import.meta.env.PROD
-    ? 'https://your-api-url.onrender.com' // Replace with your Render URL
-    : 'http://localhost:4000'; // Local development
-
-  // Save star to server
-  const postStarToServer = async (star) => {
-    const res = await fetch(`${SERVER_URL}/api/stars`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(star),
-    });
-    if (!res.ok) throw new Error(`Server returned ${res.status}`);
-    return res.json();
-  };
-
-  // Load all stars from server
-  const fetchStarsFromServer = async () => {
-    const res = await fetch(`${SERVER_URL}/api/stars`);
-    if (!res.ok) throw new Error('Failed to fetch stars from server');
-    return res.json();
-  };
-
-  // Load stars when app starts
+  // === LOAD STARS ON START ===
+  // When the app first loads, get all stars from the server
   useEffect(() => {
-    // Check if user already has a star
+    // Check if this user already added a star before
     const savedStarId = localStorage.getItem('userStarId');
     if (savedStarId) {
       setUserStarId(savedStarId);
     }
 
+    // Load all stars from server
     (async () => {
       try {
-        const serverStars = await fetchStarsFromServer();
-        setStars(serverStars);
-        setStarCount(serverStars.length);
+        const allStars = await getAllStars();
+        setStars(allStars);
       } catch (err) {
-        console.warn('Could not load stars from server:', err);
-        setStarCount(0);
+        console.warn('Could not load stars:', err);
       }
     })();
   }, []);
 
-  // Handle form submission (add or edit)
+  // === SUBMIT FORM ===
+  // When user clicks "Add" or "Update" button
   const handleSubmit = async () => {
+    // Make sure all fields are filled
     if (!sunSign || !moonSign || !risingSign) {
       alert('Please fill in all zodiac signs');
       return;
@@ -82,11 +59,12 @@ export default function CosmicUniverse() {
 
     setLoading(true);
 
+    // Create the star data object
     const starData = {
       sunSign,
       moonSign,
       risingSign,
-      position: { // Random position in 3D space (reuse existing if editing)
+      position: {
         x: (Math.random() - 0.5) * 80,
         y: (Math.random() - 0.5) * 80,
         z: (Math.random() - 0.5) * 80
@@ -96,29 +74,22 @@ export default function CosmicUniverse() {
 
     try {
       if (userStarId) {
-        // Edit mode: update existing star
-        const res = await fetch(`${SERVER_URL}/api/stars/${userStarId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(starData),
-        });
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        const updated = await res.json();
+        // EDITING: Update the existing star
+        const updated = await updateStar(userStarId, starData);
         setStars(prev => prev.map(s => s.id === userStarId ? updated : s));
       } else {
-        // Add mode: create new star
-        const saved = await postStarToServer(starData);
+        // ADDING: Create a new star
+        const saved = await createStar(starData);
         setStars(prev => [...prev, saved]);
-        setStarCount(prev => prev + 1);
-        // Save star ID to localStorage
+        // Remember this star ID for later
         localStorage.setItem('userStarId', saved.id);
         setUserStarId(saved.id);
       }
     } catch (err) {
-      alert('Could not save star to server. Make sure the server is running.');
+      alert('Could not save star. Make sure the server is running.');
     }
 
-    // Reset form
+    // Close form and reset
     setSunSign('');
     setMoonSign('');
     setRisingSign('');
@@ -126,13 +97,25 @@ export default function CosmicUniverse() {
     setLoading(false);
   };
 
-  // Show star details popup when clicked
-  const handleStarClick = (starData) => {
-    setSelectedStar(starData);
+  // === OPEN FORM ===
+  // When user clicks "Add Your Star" or "Edit Your Star"
+  const handleOpenForm = () => {
+    // If editing, pre-fill the form with existing values
+    if (userStarId) {
+      const userStar = stars.find(s => s.id === userStarId);
+      if (userStar) {
+        setSunSign(userStar.sunSign);
+        setMoonSign(userStar.moonSign);
+        setRisingSign(userStar.risingSign);
+      }
+    }
+    setShowForm(true);
   };
+
+  // === RENDER ===
   return (
     <div className="app-container">
-      {/* 3D Canvas */}
+      {/* === 3D CANVAS === */}
       <Canvas
         camera={{ position: [0, 0, 100], fov: 60 }}
         style={{ touchAction: 'none' }}
@@ -147,68 +130,30 @@ export default function CosmicUniverse() {
         />
         <Scene
           stars={stars}
-          onStarClick={handleStarClick}
+          onStarClick={setSelectedStar}
           userStarId={userStarId}
           highlightUserStar={highlightUserStar}
         />
       </Canvas>
 
-      {/* UI Layer */}
+      {/* === UI OVERLAY === */}
       <div className="ui-overlay">
         {/* Star counter */}
         <div className="star-counter">
           <div className="star-counter-label">Stars in Universe</div>
-          <div className="star-counter-value">{starCount}</div>
+          <div className="star-counter-value">{stars.length}</div>
         </div>
 
-        {/* Star details popup */}
-        {selectedStar && (
-          <div className="star-details">
-            <button
-              className="star-details-close"
-              onClick={() => setSelectedStar(null)}
-            >
-              ×
-            </button>
-            <h3 className="star-details-title">Star Details</h3>
-            <div className="star-details-content">
-              <div className="star-detail-item">
-                <span className="star-detail-label">☉ Sun Sign:</span>
-                <span className="star-detail-value">{selectedStar.sunSign}</span>
-              </div>
-              <div className="star-detail-item">
-                <span className="star-detail-label">☽ Moon Sign:</span>
-                <span className="star-detail-value">{selectedStar.moonSign}</span>
-              </div>
-              <div className="star-detail-item">
-                <span className="star-detail-label">↑ Rising Sign:</span>
-                <span className="star-detail-value">{selectedStar.risingSign}</span>
-              </div>
-              <div className="star-detail-item">
-                <span className="star-detail-label">📅 Added:</span>
-                <span className="star-detail-value">
-                  {new Date(selectedStar.timestamp).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Star details popup (when you click a star) */}
+        <StarDetails
+          star={selectedStar}
+          onClose={() => setSelectedStar(null)}
+        />
 
         {/* Add/Edit button */}
         {!showForm && (
           <button
-            onClick={() => {
-              // Pre-fill form if editing
-              if (userStarId) {
-                const userStar = stars.find(s => s.id === userStarId);
-                if (userStar) {
-                  setSunSign(userStar.sunSign);
-                  setMoonSign(userStar.moonSign);
-                  setRisingSign(userStar.risingSign);
-                }
-              }
-              setShowForm(true);
-            }}
+            onClick={handleOpenForm}
             onMouseEnter={() => userStarId && setHighlightUserStar(true)}
             onMouseLeave={() => setHighlightUserStar(false)}
             className="add-star-button"
@@ -217,83 +162,20 @@ export default function CosmicUniverse() {
           </button>
         )}
 
-        {/* Form modal */}
+        {/* Form modal (for adding/editing star) */}
         {showForm && (
-          <div className="form-overlay">
-            <div className="form-container">
-              <div className="form-header">
-                <h2 className="form-title">{userStarId ? 'Edit Your Star' : 'Add Your Star'}</h2>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="close-button"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="form-content">
-                <div className="form-group">
-                  <label className="form-label">
-                    ☉ Sun Sign
-                  </label>
-                  <select
-                    value={sunSign}
-                    onChange={(e) => setSunSign(e.target.value)}
-                    className="form-select"
-                  >
-                    <option value="">Select...</option>
-                    {ZODIAC_SIGNS.map(sign => (
-                      <option key={sign} value={sign}>{sign}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">
-                    ☽ Moon Sign
-                  </label>
-                  <select
-                    value={moonSign}
-                    onChange={(e) => setMoonSign(e.target.value)}
-                    className="form-select"
-                  >
-                    <option value="">Select...</option>
-                    {ZODIAC_SIGNS.map(sign => (
-                      <option key={sign} value={sign}>{sign}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">
-                    ↑ Rising Sign
-                  </label>
-                  <select
-                    value={risingSign}
-                    onChange={(e) => setRisingSign(e.target.value)}
-                    className="form-select"
-                  >
-                    <option value="">Select...</option>
-                    {ZODIAC_SIGNS.map(sign => (
-                      <option key={sign} value={sign}>{sign}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="submit-button"
-                >
-                  {loading ? (userStarId ? 'Updating...' : 'Adding Star...') : (userStarId ? 'Update' : 'Add')}
-                </button>
-              </div>
-
-              {/* <p className="form-footer">
-                Your star will be visible to everyone exploring the cosmic universe
-              </p> */}
-            </div>
-          </div>
+          <StarForm
+            isEditing={!!userStarId}
+            sunSign={sunSign}
+            moonSign={moonSign}
+            risingSign={risingSign}
+            onSunChange={setSunSign}
+            onMoonChange={setMoonSign}
+            onRisingChange={setRisingSign}
+            onSubmit={handleSubmit}
+            onClose={() => setShowForm(false)}
+            loading={loading}
+          />
         )}
       </div>
     </div>
